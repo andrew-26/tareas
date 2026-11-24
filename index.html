@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
 <style>
 /* VOICE: editorial, nocturna, silenciosa y segura
    IDEA: cartel/menú de restaurante de autor (Alterna, The Mandarin) convertido en planificador
@@ -172,65 +172,53 @@ form h2{font-size:48px!important;font-weight:600;letter-spacing:-.04em!important
 .yay .msg small{color:#7d7d7d;font:500 14px "Outfit",sans-serif;text-transform:lowercase}
 @media(prefers-reduced-motion:reduce){.yay .msg{transition:none}}
 
-#splash{position:fixed;inset:0;z-index:50;background:#151515;display:grid;place-items:center;transition:opacity .45s ease,visibility .45s}
+#splash{position:fixed;inset:0;z-index:50;background:#151515;display:grid;place-items:center;transition:opacity .5s ease,visibility .5s}
 #splash.out{opacity:0;visibility:hidden}
-#splash .lg{display:flex;align-items:flex-end;font:700 clamp(140px,38vw,260px)/.8 "Outfit",sans-serif;color:#fff;letter-spacing:-.05em}
-#splash .lt{display:inline-block;transform-origin:50% 100%;animation:pxT 4.4s linear both}
-#splash .ld{width:.2em;height:.2em;background:#ff7a00;margin:0 0 .02em .06em;transform-origin:50% 100%;animation:pxD 4.4s linear both}
+#splash .lg{position:relative;font:700 clamp(130px,36vw,240px)/1 "Poppins",sans-serif;color:#fff;opacity:0;display:flex;align-items:baseline}
+#splash.go .lg{opacity:1}
+#splash .lt{display:inline-block;transform-origin:50% 100%}
+#splash .ld{display:inline-block;width:.17em;height:.17em;background:#ff7a00;margin-left:.05em;transform-origin:50% 100%;opacity:0}
+#splash.go .lt{animation:pxT 4.6s both}
+#splash.go .ld{animation:pxD 4.6s both}
 @keyframes pxT{
-0%{opacity:0;transform:translateX(-1.08em) scale(1.2,.7)}
-3%{opacity:1;transform:translateX(-1.08em) scale(1.25,.68)}
-8%{transform:translateX(-0.84em) translateY(-.45em) scale(.88,1.15) rotate(8deg)}
-13%{transform:translateX(-0.63em) scale(1.22,.75) rotate(0)}
-15%{transform:translateX(-0.63em) scale(1.25,.7)}
-20%{transform:translateX(-0.36em) translateY(-.4em) scale(.9,1.12) rotate(8deg)}
-25%{transform:translateX(-0.15em) scale(1.2,.78) rotate(0)}
-27%{transform:translateX(-0.15em) scale(1.22,.74)}
-32%{transform:translateX(0) translateY(-.3em) scale(.92,1.1) rotate(6deg)}
-37%{transform:translateX(0) scale(1.15,.85)}
-41%{transform:none}
-46%{transform:rotate(-14deg) scale(.97,1.04)}
-56%{transform:rotate(-6deg)}
-60%{transform:rotate(12deg) scale(1.02,.98)}
-66%{transform:rotate(9deg)}
-70%{transform:rotate(14deg) scale(1.04,.96)}
-76%{transform:rotate(4deg)}
-84%{transform:translateY(0) scale(1.12,.88)}
-88%{transform:translateY(-.15em) scale(.95,1.06)}
-92%{transform:scale(1.04,.96)}
-96%,100%{opacity:1;transform:none}}
+0%{opacity:0;transform:translate(-1.1em,0)}
+3%{opacity:1;transform:translate(-1.1em,0) scale(1.15,.85);animation-timing-function:cubic-bezier(.2,.6,.4,1)}
+10%{transform:translate(-.85em,-.5em) scale(.92,1.1) rotate(6deg);animation-timing-function:cubic-bezier(.6,0,.8,.4)}
+16%{transform:translate(-.6em,0) scale(1.2,.8);animation-timing-function:ease-out}
+18%{transform:translate(-.6em,0) scale(1.12,.88);animation-timing-function:cubic-bezier(.2,.6,.4,1)}
+24%{transform:translate(-.33em,-.42em) scale(.93,1.08) rotate(6deg);animation-timing-function:cubic-bezier(.6,0,.8,.4)}
+30%{transform:translate(-.08em,0) scale(1.18,.82);animation-timing-function:ease-out}
+32%{transform:translate(-.08em,0) scale(1.1,.9);animation-timing-function:cubic-bezier(.2,.6,.4,1)}
+37%{transform:translate(0,-.25em) scale(.95,1.06) rotate(4deg);animation-timing-function:cubic-bezier(.6,0,.8,.4)}
+42%{transform:translate(0,0) scale(1.14,.86);animation-timing-function:ease-out}
+47%{transform:none;animation-timing-function:ease-in-out}
+52%{transform:rotate(-9deg);animation-timing-function:ease-in-out}
+58%{transform:rotate(-5deg);animation-timing-function:ease-in-out}
+63%{transform:rotate(9deg);animation-timing-function:ease-in-out}
+72%{transform:rotate(7deg);animation-timing-function:ease-in-out}
+79%{transform:none;animation-timing-function:ease-out}
+85%{transform:scale(1.06,.94);animation-timing-function:ease-out}
+90%,100%{opacity:1;transform:none}}
 @keyframes pxD{
-0%,42%{opacity:0;transform:translate(.7em,-3.2em) rotate(-40deg)}
-43%{opacity:1;transform:translate(.7em,-3.2em) rotate(-40deg)}
-52%{transform:translate(.7em,0) rotate(0) scale(1.5,.55)}
-55%{transform:translate(.7em,-.9em) rotate(25deg) scale(.9,1.1)}
-60%{transform:translate(.7em,0) scale(1.35,.7)}
-62%{transform:translate(.7em,-.35em) rotate(-10deg)}
-65%{transform:translate(.7em,0) scale(1.15,.85)}
-67%,71%{transform:translate(.7em,0)}
-73%{transform:translate(.7em,0) scale(1.3,.7)}
-79%{transform:translate(.35em,-.8em) scale(.85,1.2) rotate(-20deg)}
-84%{transform:translate(0,0) scale(1.45,.6) rotate(0)}
-88%{transform:translate(0,-.18em) scale(.9,1.12)}
-92%{transform:scale(1.1,.9)}
-96%,100%{opacity:1;transform:none}}
-@media(prefers-reduced-motion:reduce){#splash .lt,#splash .ld{width:.2em;height:.2em;background:#ff7a00;margin:0 0 .02em .06em;transform-origin:50% 100%;animation:pxD 4.4s linear both}}
-
-.months{display:flex;flex-wrap:wrap;gap:4px;align-items:center;max-width:none}
-.months button{min-height:36px;min-width:34px;padding:0 6px;border:0;background:transparent;color:#fff;font:500 15px "Outfit",sans-serif;text-transform:lowercase;position:relative;cursor:pointer}
-.months .mb.has::after{content:"";position:absolute;left:50%;bottom:3px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--mut)}
-.months .mb:hover{color:var(--hi)}
-.months .mb.on{color:var(--hi)}
-.months .mb.sel{background:var(--hi);color:#151515}.months .mb.sel::after{background:#151515}
-.months .yr{font:600 15px "Outfit",sans-serif;color:var(--mut);margin:0 2px}
-.months .yb{min-width:28px;color:var(--mut);font-size:18px}
-#mname{color:var(--hi);font-weight:600}
-.mx{min-height:0;padding:0;border:0;color:var(--mut);font-size:15px;background:none}
-.mx:hover{color:#fff}
+0%,44%{opacity:0;transform:translate(.65em,-3.5em)}
+45%{opacity:1;transform:translate(.65em,-3.5em);animation-timing-function:cubic-bezier(.55,0,1,.45)}
+53%{transform:translate(.65em,0) scale(1.45,.6);animation-timing-function:cubic-bezier(0,.55,.45,1)}
+57%{transform:translate(.65em,-.7em) scale(.9,1.1);animation-timing-function:cubic-bezier(.55,0,1,.45)}
+61%{transform:translate(.65em,0) scale(1.3,.7);animation-timing-function:cubic-bezier(0,.55,.45,1)}
+64%{transform:translate(.65em,-.22em);animation-timing-function:cubic-bezier(.55,0,1,.45)}
+67%{transform:translate(.65em,0) scale(1.15,.85);animation-timing-function:ease-out}
+71%{transform:translate(.65em,0);animation-timing-function:ease-out}
+74%{transform:translate(.65em,0) scale(1.3,.72);animation-timing-function:cubic-bezier(.2,.6,.4,1)}
+80%{transform:translate(.32em,-.65em) scale(.9,1.12) rotate(-18deg);animation-timing-function:cubic-bezier(.6,0,.8,.4)}
+85%{transform:translate(0,0) scale(1.4,.65);animation-timing-function:ease-out}
+89%{transform:translate(0,-.08em) scale(.95,1.05);animation-timing-function:ease-in-out}
+93%,100%{opacity:1;transform:none}}
 </style></head>
 <body style="padding-top:env(safe-area-inset-top)">
-<div id="splash" aria-hidden="true" onclick="this.classList.add('out')"><div class="lg"><span class="lt">t</span><span class="ld"></span></div></div>
-<script>setTimeout(()=>{const s=document.getElementById("splash");s.classList.add("out");setTimeout(()=>s.remove(),500)},5000)</script>
+<div id="splash" aria-hidden="true"><div class="lg"><span class="lt">t</span><span class="ld"></span></div></div>
+<script>(()=>{const s=document.getElementById("splash");let done=false;const end=()=>{if(done)return;done=true;s.classList.add("out");setTimeout(()=>s.remove(),600)};
+const go=()=>{if(s.classList.contains("go"))return;s.classList.add("go");setTimeout(end,4600+900)};
+s.onclick=end;(document.fonts&&document.fonts.load?Promise.race([document.fonts.load('700 100px "Poppins"'),new Promise(r=>setTimeout(r,1500))]):Promise.resolve()).then(go,go);setTimeout(end,8000)})()</script>
 <div class="hero">
   <div class="months sc" id="months"></div>
   <div class="meta sc"><span id="msel" hidden><b id="mname"></b> <button type="button" id="mclear" class="mx">ver todo ×</button><br></span><span>gantt↔tareas</span> <button type="button" id="out" style="min-height:0;padding:0;border:0;color:var(--mut);font-size:15px">salir</button><br><span id="sync">Cargando…</span></div>
