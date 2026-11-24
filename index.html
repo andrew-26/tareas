@@ -213,7 +213,17 @@ form h2{font-size:48px!important;font-weight:600;letter-spacing:-.04em!important
 85%{transform:translate(0,0) scale(1.4,.65);animation-timing-function:ease-out}
 89%{transform:translate(0,-.08em) scale(.95,1.05);animation-timing-function:ease-in-out}
 93%,100%{opacity:1;transform:none}}
-</style></head>
+
+.months{display:grid!important;grid-template-columns:22px auto 22px repeat(12,minmax(0,1fr));gap:2px;align-items:center;max-width:620px;width:100%}
+.months button{border:0!important;border-radius:0;min-height:34px!important;min-width:0!important;padding:0!important;width:100%;background:none;box-shadow:none;letter-spacing:0!important;display:grid;place-items:center}
+.months .mb.on{background:none;width:auto;color:var(--hi)}
+.months .mb.sel{background:var(--hi)!important;color:#151515!important}
+.months .yr{align-self:center!important;padding:0 4px!important;text-align:center;line-height:34px;white-space:nowrap}
+.months .yb{font-size:20px!important;line-height:1}
+@media(max-width:600px){.months{grid-template-columns:18px auto 18px repeat(12,minmax(0,1fr));gap:0}.months button{font-size:14px!important}.months .yr{font-size:13px!important;padding:0 2px!important}}
+.mx{border:0!important;background:none!important;padding:0!important;min-height:0!important}
+</style>
+</head>
 <body style="padding-top:env(safe-area-inset-top)">
 <div id="splash" aria-hidden="true"><div class="lg"><span class="lt">t</span><span class="ld"></span></div></div>
 <script>(()=>{const s=document.getElementById("splash");let done=false;const end=()=>{if(done)return;done=true;s.classList.add("out");setTimeout(()=>s.remove(),600)};
