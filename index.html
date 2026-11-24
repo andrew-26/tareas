@@ -230,7 +230,7 @@ form h2{font-size:48px!important;font-weight:600;letter-spacing:-.04em!important
 </style></head>
 <body style="padding-top:env(safe-area-inset-top)">
 <div id="splash" aria-hidden="true" onclick="this.classList.add('out')"><div class="lg"><span class="lt">t</span><span class="ld"></span></div></div>
-<script>setTimeout(()=>{const s=document.getElementById("splash");s.classList.add("out");setTimeout(()=>s.remove(),500)},matchMedia("(prefers-reduced-motion: reduce)").matches?300:5000)</script>
+<script>setTimeout(()=>{const s=document.getElementById("splash");s.classList.add("out");setTimeout(()=>s.remove(),500)},5000)</script>
 <div class="hero">
   <div class="months sc" id="months"></div>
   <div class="meta sc"><span id="msel" hidden><b id="mname"></b> <button type="button" id="mclear" class="mx">ver todo ×</button><br></span><span>gantt↔tareas</span> <button type="button" id="out" style="min-height:0;padding:0;border:0;color:var(--mut);font-size:15px">salir</button><br><span id="sync">Cargando…</span></div>
