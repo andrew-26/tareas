@@ -370,7 +370,7 @@ function showLogin(msg){$('login').hidden=false;$('lmsg').textContent=msg||''}
   start();
 })();
 let started=false;
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});let rl=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!rl&&navigator.serviceWorker.controller){rl=true;location.reload()}})}
 async function start(){if(started)return;started=true;$('login').hidden=true;sync('Conectando…');
   await load();
   if(Array.isArray(local)&&local.length&&!tasks.length){commit(local.map(t=>({...t,id:String(t.id)})),{undo:false});try{localStorage.removeItem(KEY)}catch(e){}}
