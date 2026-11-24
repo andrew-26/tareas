@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>tareas.</title>
+<meta name="theme-color" content="#151515">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: editorial, nocturna, silenciosa y segura
+   IDEA: cartel/menú de restaurante de autor (Alterna, The Mandarin) convertido en planificador
+   PICTURE: título enorme "tareas." con punto mandarina; tiras finas sobre negro, etiquetas en versalitas espaciadas
+   COLOUR and TYPE: negro cálido #0d0c0b, hueso #efe9df, mandarina #ff6a1a, rojo #e5261c, azul cielo #9fbcd8; Inter Tight + Cormorant SC
+   LAYOUT: cabecera en esquinas como cartel, rejilla de meses arriba, tablero a sangre */
+:root{color-scheme:dark;--bg:#0d0c0b;--ink:#efe9df;--mut:#8b857c;--line:#262320;--plane:#141210;--hi:#ff6a1a;--red:#e5261c;--sky:#9fbcd8;
+--s-pend:#5a554e;--s-act:#ff6a1a;--s-done:#efe9df;--s-blk:#e5261c;--s-pau:#9fbcd8}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Inter Tight",system-ui,sans-serif;overflow-x:clip}
+.sc{font-family:"Cormorant SC","Cormorant Garamond",Georgia,serif;letter-spacing:.22em;font-weight:500}
+.hero{padding:clamp(20px,3vw,36px) max(4vw,16px) 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 32px;max-width:1440px;margin:auto}
+.months{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px;max-width:520px;font-size:13px;color:var(--ink)}
+.months span{padding:2px 0;line-height:1.3;align-self:start}.months .on{background:var(--hi);color:var(--bg);text-align:center;width:1.7em}
+.meta{text-align:right;font-size:13px;color:var(--ink);line-height:1.7}
+.meta #sync{color:var(--mut)}
+header{grid-column:1/-1;display:flex;align-items:end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-top:clamp(10px,4vw,48px)}
+.hl{display:flex;align-items:end;gap:28px}
+h1{font:600 clamp(72px,15vw,200px)/.82 "Inter Tight",sans-serif;letter-spacing:-.065em;margin:0 0 0 -.05em}
+h1 i{color:var(--hi);font-style:normal}
+.pct{font-size:13px;color:var(--mut);padding-bottom:12px}.pct b{display:block;font:500 clamp(34px,5vw,56px)/1 "Cormorant Garamond",serif;color:var(--ink);letter-spacing:0}
+.sub{display:none}
+button,select,input,textarea{font:inherit;font-size:16px;color:var(--ink)}
+button{min-height:44px;padding:0 18px;border:1px solid var(--line);background:transparent;border-radius:0;cursor:pointer;font-family:"Cormorant SC",serif;letter-spacing:.18em;font-size:15px;font-weight:600}
+button:hover{border-color:var(--ink)}
+button.pri{background:var(--hi);color:var(--bg);border-color:var(--hi)}
+button:disabled{opacity:.3;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,.name:focus-visible,.card:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+select,input,textarea{min-height:44px;padding:8px 10px;border:1px solid var(--line);background:var(--plane);border-radius:0}
+select{font-family:"Cormorant SC",serif;letter-spacing:.12em;font-weight:600}
+.stats{grid-column:1/-1;display:flex;flex-wrap:wrap;border-top:1px solid var(--ink);margin-top:18px}
+.stat{flex:1 1 0;border:0;border-right:1px solid var(--line);display:flex;align-items:baseline;gap:10px;padding:14px 16px 14px 0;min-height:64px;color:var(--mut);white-space:nowrap;font-size:14px}
+.stat:last-child{border-right:0}.stat+.stat{padding-left:16px}
+.stat b{font:500 30px/1 "Cormorant Garamond",serif;color:var(--ink);letter-spacing:0}
+.stat i{width:8px;height:8px;border-radius:50%;align-self:center}
+.stat[aria-pressed=true]{color:var(--hi)}.stat[aria-pressed=true] b{color:var(--hi)}
+.board{max-width:1440px;margin:auto;padding:0 max(4vw,16px) 48px}
+.bar{display:flex;gap:6px;padding:12px 0;align-items:center;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--line);border-bottom:1px solid var(--ink)}
+.bar>*{flex:none}
+.seg{display:inline-flex}.seg button{margin-left:-1px}.seg button:first-child{margin-left:0}
+.seg button[aria-pressed=true]{color:var(--hi);border-color:var(--hi);position:relative;z-index:1}
+.wrap{overflow:auto;max-height:calc(100vh - 160px);min-height:360px;position:relative}
+.grid{display:grid;position:relative}
+.hd{position:sticky;top:0;z-index:3;background:var(--bg);border-bottom:1px solid var(--line);font-size:11px;color:var(--mut);height:56px}
+.corner{position:sticky;left:0;top:0;z-index:4;background:var(--bg);border-bottom:1px solid var(--line);padding:20px 0;font:600 13px "Cormorant SC",serif;letter-spacing:.22em;color:var(--mut);height:56px}
+.day{position:absolute;top:0;height:56px;padding:10px 0 0 6px;white-space:nowrap;line-height:1.2;font-family:"Cormorant SC",serif;letter-spacing:.15em;font-size:12px}
+.day b{display:block;color:var(--ink);font:500 18px "Cormorant Garamond",serif;letter-spacing:0}
+.day.we b{color:var(--mut)}
+.day.today b{background:var(--hi);color:var(--bg);display:table;padding:0 4px}
+.name{position:sticky;left:0;z-index:2;background:var(--bg);padding:8px 16px 8px 0;display:flex;gap:10px;align-items:center;height:64px;cursor:pointer}
+.name .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px;font-weight:500}
+.name:hover .t{color:var(--hi)}
+.name .g{font:600 11px "Cormorant SC",serif;letter-spacing:.2em;color:var(--mut);white-space:nowrap;margin-left:auto}
+.name .dot{flex:none;width:7px;height:7px;border-radius:50%}
+.lane{position:relative;height:64px}.lane,.name{border-bottom:1px solid var(--line)}
+.col{position:absolute;top:0;bottom:0}.col.we{background:var(--plane)}
+.now{position:absolute;top:0;bottom:0;width:1px;background:var(--hi);z-index:2;pointer-events:none}
+.task{position:absolute;top:30px;height:6px;padding:0;border:0;min-height:0;overflow:visible;cursor:pointer;z-index:1;font:600 12px "Cormorant SC",serif;letter-spacing:.18em;white-space:nowrap;background:var(--s-pend)}
+.task::after{content:"";position:absolute;inset:-26px 0 -14px}
+.task span{position:absolute;left:0;bottom:12px;color:var(--ink);font-size:13px}
+.task svg{position:absolute;right:-20px;top:-4px;color:var(--ink)}
+.task .p{position:absolute;left:0;top:0;bottom:0;background:var(--ink);opacity:.9}
+.task:hover span{color:var(--hi)}
+.st-pend{background:var(--s-pend)}.st-act{background:var(--s-act)}.st-done{background:var(--s-done)}.st-blk{background:var(--s-blk)}.st-pau{background:var(--s-pau)}
+.task.st-act .p{background:#ffd2b3}
+.task.st-done span{color:var(--mut);text-decoration:line-through}
+.empty{padding:64px 0;color:var(--mut);font-size:15px}.empty b{display:block;color:var(--ink);font:500 40px/1.1 "Cormorant Garamond",serif;margin-bottom:6px}
+.list{display:none}
+.list h3{margin:28px 0 0;padding:0 0 8px;font:600 13px "Cormorant SC",serif;letter-spacing:.24em;color:var(--hi);border-bottom:1px solid var(--ink)}
+.card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:16px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.card .top{display:contents}
+.card .t{font:500 22px/1.2 "Inter Tight",sans-serif;letter-spacing:-.01em}
+.card .d{font:600 12px "Cormorant SC",serif;letter-spacing:.18em;color:var(--mut);white-space:nowrap}
+.chip{min-height:36px;padding:0 12px;font-size:12px;background:transparent!important;border:1px solid currentColor}
+.chip.st-act{color:var(--s-act)}.chip.st-done{color:var(--ink)}.chip.st-blk{color:var(--red)}.chip.st-pau{color:var(--sky)}.chip.st-pend{color:var(--mut)}
+.meter{grid-column:1/-1;height:3px;background:var(--line);margin-top:6px}.meter i{display:block;height:100%}
+.mode-list .list{display:block}.mode-list .wrap,.mode-list .zoom{display:none}
+.fab{display:none}
+dialog{border:1px solid var(--line);border-radius:0;background:var(--bg);color:var(--ink);padding:0;width:min(540px,94vw)}
+dialog::backdrop{background:rgba(0,0,0,.7)}
+form{padding:28px;display:grid;gap:16px}
+form h2{margin:0;font:600 44px/.95 "Inter Tight",sans-serif;letter-spacing:-.05em}
+form h2::after{content:".";color:var(--hi)}
+label{display:grid;gap:6px;font:600 12px "Cormorant SC",serif;letter-spacing:.2em;color:var(--mut)}
+label input,label select{font-family:"Inter Tight",sans-serif;letter-spacing:0;color-scheme:dark}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.stpick{display:flex;flex-wrap:wrap;gap:6px}
+.stpick button{min-height:40px;font-size:13px;background:transparent!important;color:var(--mut)}
+.stpick button[aria-pressed=true]{color:var(--bg)!important;border-color:transparent}
+.stpick .st-act[aria-pressed=true]{background:var(--hi)!important}.stpick .st-done[aria-pressed=true]{background:var(--ink)!important}.stpick .st-blk[aria-pressed=true]{background:var(--red)!important}.stpick .st-pau[aria-pressed=true]{background:var(--sky)!important}.stpick .st-pend[aria-pressed=true]{background:var(--s-pend)!important;color:var(--ink)!important}
+.acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}.acts .del{margin-right:auto;color:var(--red);border-color:transparent}
+textarea{min-height:140px;font-family:ui-monospace,monospace;font-size:13px}
+.toast{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;font:600 13px "Cormorant SC",serif;letter-spacing:.18em;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9;white-space:nowrap}.toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+@media(max-width:600px){
+ .hero{grid-template-columns:minmax(0,1fr)}.meta{text-align:left;display:flex;gap:14px;flex-wrap:wrap}.meta br{display:none}
+ header #add{display:none}.hl{width:100%;justify-content:space-between}
+ .stats{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.stat{flex:none;min-height:56px}.stat b{font-size:24px}
+ .fab{display:flex;position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:60px;height:60px;align-items:center;justify-content:center;font:300 34px "Inter Tight",sans-serif;letter-spacing:0;background:var(--hi);color:var(--bg);border:0;border-radius:50%;z-index:5;padding:0}
+ .wrap{max-height:none}.list{padding-bottom:90px}
+ .name .g{display:none}
+ dialog{width:100vw;max-width:100vw;margin:auto 0 0;max-height:92vh;border-width:1px 0 0}
+ form{padding-bottom:calc(28px + env(safe-area-inset-bottom))}form h2{font-size:36px}
+}
+
+/* v2: threesixzero — sans geométrica en minúsculas, palabras pegadas, un color puro por estado */
+:root{--bg:#151515;--ink:#fff;--mut:#7d7d7d;--line:#262626;--plane:#1b1b1b;--hi:#ff7a00;
+--s-pend:#8a8a8a;--s-act:#1a8fff;--s-done:#16c60c;--s-blk:#ff19e6;--s-pau:#fff200;--red:#ff19e6;--sky:#1a8fff}
+body,.sc,button,select,label,.toast,.corner,.day,.day b,.name .g,.task,.card .d,.list h3,.pct b,.stat b,form h2{font-family:"Outfit",system-ui,sans-serif!important;letter-spacing:-.01em!important;text-transform:lowercase}
+input,textarea,.name .t,.card .t{text-transform:none}
+h1{font:600 clamp(64px,13vw,180px)/.85 "Outfit",sans-serif;letter-spacing:-.045em}
+h1 i{color:var(--hi)}
+.months{font-size:15px;font-weight:500}.months .on{color:#151515}
+.meta{font-size:15px;font-weight:500}
+.pct{font-size:15px}.pct b{font-weight:600;font-size:clamp(40px,6vw,72px);letter-spacing:-.04em!important;color:var(--hi)}
+.stats{border-top:0;margin-top:22px;display:block;font:600 clamp(22px,3.4vw,40px)/1.05 "Outfit",sans-serif}
+.stat{display:inline;border:0;padding:0!important;min-height:0;font:inherit;color:#fff;background:none;letter-spacing:-.03em!important;cursor:pointer}
+.stat b{font:inherit;color:inherit;letter-spacing:inherit!important}
+.stat i{display:none}
+.stat[data-f=pend]{color:var(--s-pend)}.stat[data-f=act]{color:var(--s-act)}.stat[data-f=pau]{color:var(--s-pau)}.stat[data-f=blk]{color:var(--s-blk)}.stat[data-f=done]{color:var(--s-done)}
+.stat[aria-pressed=false]{opacity:.38}.stat[aria-pressed=true]{opacity:1}.stat[data-f=""]{color:#fff!important}
+.stat:hover{opacity:1}
+button{font-weight:600;font-size:16px;border-color:#333}
+button.pri{color:#151515}
+.bar{border-top:0;border-bottom:1px solid #333;margin-top:22px}
+.day{font-size:12px}.day b{font-size:17px;font-weight:600}
+.day.today b{color:#151515}
+.name .t{font-weight:500}.name .g{font-size:13px}
+.task{top:14px;height:36px;border-radius:0;overflow:hidden}
+.task::after{display:none}
+.task span{position:relative;bottom:auto;padding:0 10px;line-height:36px;color:#151515;font-weight:600;font-size:14px}
+.task svg{position:relative;right:auto;top:auto;color:#151515;margin-left:8px}
+.task{display:flex;align-items:center}
+.task .p{background:rgba(0,0,0,.22);opacity:1}
+.task.st-act .p{background:rgba(0,0,0,.22)}
+.task.st-done span{color:#151515;text-decoration:line-through}
+.task:hover{filter:brightness(1.12)}.task:hover span{color:#151515}
+.list h3{color:#fff;font-size:22px;font-weight:600;border-bottom:0;padding:0;margin-top:28px}
+.list h3::after{content:"tareas";color:var(--mut)}
+.card .t{font-family:"Outfit",sans-serif;font-weight:500}
+.card .d{font-size:14px}
+.chip{border:0!important;color:#151515!important;font-size:14px}
+.chip.st-act{background:var(--s-act)!important}.chip.st-done{background:var(--s-done)!important}.chip.st-blk{background:var(--s-blk)!important}.chip.st-pau{background:var(--s-pau)!important}.chip.st-pend{background:var(--s-pend)!important}
+.meter{height:4px}
+form h2{font-size:48px!important;font-weight:600;letter-spacing:-.04em!important}
+.stpick .st-pau[aria-pressed=true],.stpick .st-done[aria-pressed=true],.stpick .st-act[aria-pressed=true],.stpick .st-blk[aria-pressed=true]{color:#151515!important}
+.stpick .st-act[aria-pressed=true]{background:var(--s-act)!important}.stpick .st-done[aria-pressed=true]{background:var(--s-done)!important}.stpick .st-blk[aria-pressed=true]{background:var(--s-blk)!important}.stpick .st-pau[aria-pressed=true]{background:var(--s-pau)!important}
+.fab{color:#151515}
+@media(max-width:600px){.stats{white-space:normal;overflow:visible;font-size:26px}.stat{flex:none}}
+
+.yay{position:fixed;inset:0;z-index:20;display:grid;place-items:center;pointer-events:none}
+.yay canvas{position:absolute;inset:0;width:100%;height:100%}
+.yay .msg{position:relative;pointer-events:auto;background:#151515;border:1px solid #333;padding:28px 32px;max-width:min(440px,88vw);text-align:center;opacity:0;transform:scale(.9);transition:opacity .25s,transform .35s cubic-bezier(.2,1.4,.4,1);cursor:pointer}
+.yay.on .msg{opacity:1;transform:none}
+.yay .msg b{display:block;font:600 clamp(40px,9vw,64px)/.95 "Outfit",sans-serif;letter-spacing:-.045em;color:#fff;text-transform:lowercase}
+.yay .msg b i{font-style:normal;color:var(--s-done)}
+.yay .msg p{margin:12px 0 4px;color:#fff;font:500 18px/1.35 "Outfit",sans-serif;text-transform:none}
+.yay .msg small{color:#7d7d7d;font:500 14px "Outfit",sans-serif;text-transform:lowercase}
+@media(prefers-reduced-motion:reduce){.yay .msg{transition:none}}
+</style></head>
+<body style="padding-top:env(safe-area-inset-top)">
+<div class="hero">
+  <div class="months sc" id="months"></div>
+  <div class="meta sc"><span>gantt↔tareas</span> <button type="button" id="out" style="min-height:0;padding:0;border:0;color:var(--mut);font-size:15px">salir</button><br><span id="sync">Cargando…</span></div>
+  <header>
+    <div class="hl"><h1>tareas<i>.</i></h1><div class="pct sc" id="ring"><b id="ringv">0%</b>hecho</div></div>
+    <button class="pri" id="add">+ Nueva tarea</button>
+  </header>
+  <div class="stats sc" id="stats"></div>
+</div>
+<main class="board"><div class="panel">
+<div class="bar">
+  <div class="seg" role="group" aria-label="Vista"><button data-v="gantt" aria-pressed="true">Gantt</button><button data-v="list" aria-pressed="false">Lista</button></div>
+  <div class="seg zoom" role="group" aria-label="Zoom">
+    <button data-z="44" aria-pressed="true">Días</button><button data-z="18">Semanas</button><button data-z="7">Meses</button>
+  </div>
+  <button id="today">Hoy</button>
+  <select id="fs" aria-label="Filtrar por estado"><option value="">Todos los estados</option></select>
+  <select id="fg" aria-label="Filtrar por grupo"><option value="">Todos los grupos</option></select>
+  <button id="undo" disabled>Deshacer</button>
+  <button id="io">Copia / importar</button>
+</div>
+
+<div class="wrap" id="wrap"><div class="grid" id="grid"></div></div>
+<div class="list" id="list"></div></div></main>
+<button class="fab" id="fab" aria-label="Nueva tarea">+</button>
+
+<dialog id="dlg"><form id="frm" method="dialog">
+  <h2 id="dt">Tarea</h2>
+  <label>Nombre<input id="f-n" required maxlength="80"></label>
+  <div class="two">
+    <label>Inicio<input type="date" id="f-s" required></label>
+    <label>Fin<input type="date" id="f-e" required></label>
+  </div>
+  <div class="two">
+    <label>Estado<select id="f-st" hidden></select><div class="stpick" id="stpick"></div></label>
+    <label>Progreso %<input type="number" id="f-p" min="0" max="100" step="5"></label>
+  </div>
+  <label>Grupo / proyecto<input id="f-g" list="glist" maxlength="40"><datalist id="glist"></datalist></label>
+  <label>Notas<input id="f-no" maxlength="200"></label>
+  <div class="acts"><button type="button" class="del" id="f-del">Eliminar</button><button type="button" id="f-x">Cancelar</button><button class="pri" id="f-ok">Guardar</button></div>
+</form></dialog>
+
+<dialog id="dio"><form id="fio" method="dialog">
+  <h2>Copia de seguridad</h2>
+  <p class="sub" style="margin:0">Las tareas se sincronizan solas en la nube. Aquí puedes copiar una copia de seguridad o pegar una para reemplazar las tareas actuales.</p>
+  <textarea id="io-t" aria-label="Datos en JSON"></textarea>
+  <div class="acts"><button type="button" id="io-c">Copiar</button><button type="button" id="io-x">Cerrar</button><button type="button" class="pri" id="io-i">Importar</button></div>
+</form></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<dialog id="login" open hidden style="position:fixed;inset:0;margin:auto">
+<form id="lform"><h2>entrar</h2>
+<p style="margin:0;color:var(--mut);text-transform:none">Escribe tu email y te llega un enlace para entrar. Solo hace falta una vez por dispositivo.</p>
+<label>email<input type="email" id="lemail" required autocomplete="email"></label>
+<p id="lmsg" style="margin:0;color:var(--hi);text-transform:none"></p>
+<div class="acts"><button class="pri">enviar enlace</button></div></form></dialog>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+{
+const ST=[['pend','Pendiente'],['act','En curso'],['pau','En pausa'],['blk','Bloqueada'],['done','Hecha']];
+const SL=Object.fromEntries(ST);
+const KEY='gantt-eve-v1',DAY=864e5;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const iso=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const parse=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d).getTime()};
+const T0=parse(iso(Date.now()));
+const add=(t,n)=>iso(t+n*DAY);
+const sample=()=>[
+ {id:1,n:'Definir alcance',s:add(T0,-6),e:add(T0,-3),st:'done',p:100,g:'Proyecto A',no:''},
+ {id:2,n:'Diseño de pantallas',s:add(T0,-2),e:add(T0,4),st:'act',p:40,g:'Proyecto A',no:''},
+ {id:3,n:'Revisión con cliente',s:add(T0,5),e:add(T0,6),st:'pend',p:0,g:'Proyecto A',no:''},
+ {id:4,n:'Estudio tema 3',s:add(T0,-1),e:add(T0,8),st:'act',p:20,g:'Estudio',no:''},
+ {id:5,n:'Esperando material',s:add(T0,1),e:add(T0,3),st:'blk',p:0,g:'Proyecto B',no:''}];
+let local=null,tasks=[],hist=[],zoom=44,editId=null,db=null,ready=false;
+try{local=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(Array.isArray(local))tasks=local.map(t=>({...t,id:String(t.id)}));
+const CACHE=KEY+'-cache';
+if(!tasks.length){try{const c=JSON.parse(localStorage.getItem(CACHE));if(Array.isArray(c))tasks=c}catch(e){}}
+const sync=m=>{$('sync').textContent=m};
+const clean=t=>({n:String(t.n||'').slice(0,80),s:t.s,e:t.e,st:SL[t.st]?t.st:'pend',p:+t.p||0,g:String(t.g||'').slice(0,40),no:String(t.no||'').slice(0,200)});
+const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+let q=Promise.resolve();
+const FR=['Una menos. Sigue así.','Eso es constancia.','Paso a paso se llega lejos.','Lo dijiste, lo hiciste.','Hoy cuenta. Y lo has demostrado.','Pequeñas victorias, grandes proyectos.','Tu yo del futuro te lo agradece.','Así se construye.','Imparable.','Bien hecho. De verdad.'];
+const CC=['#ff19e6','#16c60c','#fff200','#1a8fff','#ff7a00','#ffffff'];
+function celebrate(name){
+  document.querySelector('.yay')?.remove();
+  const w=document.createElement('div');w.className='yay';w.setAttribute('role','status');
+  w.innerHTML='<canvas></canvas><div class="msg"><b>bien hecho<i>.</i></b><p></p><small></small></div>';
+  w.querySelector('p').textContent=FR[Math.floor(Math.random()*FR.length)];
+  w.querySelector('small').textContent=name;
+  document.body.appendChild(w);requestAnimationFrame(()=>w.classList.add('on'));
+  const close=()=>{w.classList.remove('on');setTimeout(()=>w.remove(),300)};
+  w.querySelector('.msg').onclick=close;const tm=setTimeout(close,2800);
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const c=w.querySelector('canvas'),x=c.getContext('2d'),dpr=devicePixelRatio||1;
+  c.width=innerWidth*dpr;c.height=innerHeight*dpr;x.scale(dpr,dpr);
+  const P=Array.from({length:180},()=>({x:innerWidth/2+(Math.random()-.5)*80,y:innerHeight*.55,vx:(Math.random()-.5)*16,vy:-Math.random()*17-6,s:Math.random()*8+5,r:Math.random()*6,vr:(Math.random()-.5)*.35,c:CC[Math.floor(Math.random()*CC.length)],sh:Math.random()<.5}));
+  let t0=performance.now();
+  (function f(t){const dt=Math.min(2,(t-t0)/16);t0=t;x.clearRect(0,0,innerWidth,innerHeight);let alive=0;
+    for(const p of P){p.vy+=.45*dt;p.vx*=.99;p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;if(p.y<innerHeight+20)alive++;
+      x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;if(p.sh)x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);else{x.beginPath();x.arc(0,0,p.s/3,0,7);x.fill()}x.restore()}
+    if(alive&&document.body.contains(w))requestAnimationFrame(f)})(t0);
+}
+function commit(next,{undo=true}={}){
+  if(undo){hist.push(JSON.stringify(tasks));if(hist.length>30)hist.shift();$('undo').disabled=false}
+  const was=new Map(tasks.map(t=>[t.id,t.st]));const fin=next.filter(t=>t.st==='done'&&was.has(t.id)?was.get(t.id)!=='done':t.st==='done'&&!was.has(t.id)&&undo);
+  if(undo&&fin.length)setTimeout(()=>celebrate(fin.length>1?fin.length+' tareas completadas':fin[0].n),150);
+  const prev=new Map(tasks.map(t=>[t.id,JSON.stringify(clean(t))]));
+  const nextIds=new Set(next.map(t=>t.id));
+  tasks=next;render();
+  try{localStorage.setItem(CACHE,JSON.stringify(tasks))}catch(e){}
+  if(!db){sync('Sin conexión: cambios solo en este dispositivo');return}
+  const ops=[];
+  for(const t of next){const j=JSON.stringify(clean(t));if(prev.get(t.id)!==j)ops.push(async()=>{const {error}=await sb.from('tasks').upsert({id:t.id,...clean(t)});if(error)throw error})}
+  for(const id of prev.keys())if(!nextIds.has(id))ops.push(async()=>{const {error}=await sb.from('tasks').delete().eq('id',id);if(error)throw error});
+  if(!ops.length)return;
+  sync('Guardando…');
+  q=q.then(async()=>{for(const op of ops){try{await op()}catch(e){if(!navigator.onLine){await new Promise(r=>setTimeout(r,800+Math.random()*800));try{await op()}catch(e2){sync('Error al guardar');return}}else{sync('Error al guardar');return}}}sync('Sincronizado ✓')});
+}
+// ---- Supabase ----
+const CFG=window.TAREAS_CONFIG||{};
+let sb=null,uid=null;
+async function load(){const {data,error}=await sb.from('tasks').select('*');if(error){sync('Error al cargar');return}
+  tasks=data.map(r=>({id:r.id,n:r.n,s:r.s,e:r.e,st:r.st,p:r.p,g:r.g||'',no:r.no||''}));render();sync('Sincronizado ✓');
+  try{localStorage.setItem(CACHE,JSON.stringify(tasks))}catch(e){}}
+function showLogin(msg){$('login').hidden=false;$('lmsg').textContent=msg||''}
+(async()=>{
+  if(!CFG.url||!CFG.key||!window.supabase){sync('Falta configurar la nube');return}
+  sb=window.supabase.createClient(CFG.url,CFG.key,{auth:{persistSession:true,detectSessionInUrl:true}});
+  db=true;
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){sync('Sin sesión');showLogin();return}
+  start();
+})();
+let started=false;
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+async function start(){if(started)return;started=true;$('login').hidden=true;sync('Conectando…');
+  await load();
+  if(Array.isArray(local)&&local.length&&!tasks.length){commit(local.map(t=>({...t,id:String(t.id)})),{undo:false});try{localStorage.removeItem(KEY)}catch(e){}}
+  sb.channel('tasks').on('postgres_changes',{event:'*',schema:'public',table:'tasks'},()=>{clearTimeout(start.t);start.t=setTimeout(load,300)}).subscribe();
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
+  window.addEventListener('online',load);
+}
+$('lform').addEventListener('submit',async e=>{e.preventDefault();const email=$('lemail').value.trim();
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
+  $('lmsg').textContent=error?'No se pudo enviar: '+error.message:'Te he enviado un enlace a '+email+'. Ábrelo desde este dispositivo.'});
+setTimeout(()=>sb&&sb.auth.onAuthStateChange((ev,ses)=>{if(ses)start()}),0);
+const toast=m=>{const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),1800)};
+
+$('f-st').innerHTML=ST.map(([k,l])=>`<option value="${k}">${l}</option>`).join('');
+$('fs').innerHTML+=ST.map(([k,l])=>`<option value="${k}">${l}</option>`).join('');
+{const M='JFMAMJJASOND',m=new Date().getMonth();$('months').innerHTML=[...M].map((c,i)=>`<span class="${i===m?'on':''}">${c}</span>`).join('')}
+$('stpick').innerHTML=ST.map(([k,l])=>`<button type="button" class="st-${k}" data-st="${k}">${l}</button>`).join('');
+const pick=v=>{$('f-st').value=v;document.querySelectorAll('#stpick button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.st===v))};
+$('stpick').onclick=e=>{const b=e.target.closest('[data-st]');if(b)pick(b.dataset.st)};
+let view=window.innerWidth<600?'list':'gantt';
+
+function render(){
+  const fs=$('fs').value,fg=$('fg').value;
+  const groups=[...new Set(tasks.map(t=>t.g).filter(Boolean))].sort();
+  const cur=$('fg').value;
+  $('fg').innerHTML='<option value="">Todos los grupos</option>'+groups.map(g=>`<option${g===cur?' selected':''}>${esc(g)}</option>`).join('');
+  $('glist').innerHTML=groups.map(g=>`<option value="${esc(g)}">`).join('');
+  const list=tasks.filter(t=>(!fs||t.st===fs)&&(!fg||t.g===fg)).sort((a,b)=>(a.g||'').localeCompare(b.g||'')||a.s.localeCompare(b.s));
+  const done=tasks.filter(t=>t.st==='done').length;
+  const cnt=k=>tasks.filter(t=>t.st===k).length;const pc=tasks.length?Math.round(cnt('done')/tasks.length*100):0;$('ringv').textContent=pc+'%';$('ring').title=pc+'% de tareas hechas';
+  $('stats').innerHTML=`<button class="stat" data-f="" aria-pressed="${!fs}">todas<b>${tasks.length}</b></button>`+ST.map(([k,l])=>`<button class="stat" data-f="${k}" aria-pressed="${!fs||fs===k}">${l.toLowerCase().replace(' ','')}<b>${cnt(k)}</b></button>`).join('');
+  document.body.classList.toggle('mode-list',view==='list');
+  const fmt=x=>{const d=new Date(parse(x));return d.getDate()+' '+['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][d.getMonth()]};
+  let lh='',lg=null;
+  for(const t of list){if((t.g||'')!==lg){lg=t.g||'';lh+=`<h3>${esc((lg||'sin grupo').toLowerCase().replace(/\s+/g,''))}</h3>`}
+    const p=t.st==='done'?100:(t.p||0);
+    lh+=`<div class="card" tabindex="0" data-id="${esc(t.id)}"><div class="top"><span class="t">${esc(t.n)}</span><button class="chip st-${t.st}" data-cycle="${esc(t.id)}" title="Cambiar estado">${SL[t.st]}</button></div><div class="top"><span class="d">${fmt(t.s)} → ${fmt(t.e)}</span><span class="d">${p}%</span></div><div class="meter"><i style="width:${p}%;background:var(--s-${t.st})"></i></div></div>`}
+  $('list').innerHTML=lh||'<div class="empty"><b>Nada pendiente.</b>No hay tareas aquí. Pulsa + para crear una.</div>';
+  const all=tasks.length?tasks:[{s:iso(T0),e:iso(T0)}];
+  let min=Math.min(T0,...all.map(t=>parse(t.s)))-3*DAY,max=Math.max(T0,...all.map(t=>parse(t.e)))+10*DAY;
+  const n=Math.round((max-min)/DAY)+1,W=zoom,nameW=window.innerWidth<600?130:280;
+  const g=$('grid');g.style.gridTemplateColumns=`${nameW}px ${n*W}px`;
+  const dn=['D','L','M','X','J','V','S'],mn=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  let head='',cols='';
+  for(let i=0;i<n;i++){const d=new Date(min+i*DAY),we=d.getDay()%6===0,td=+d===T0;
+    if(W>=30||d.getDay()===1||(W<10&&d.getDate()===1)){
+      const lab=W>=30?`<b>${d.getDate()}</b>${dn[d.getDay()]}`:`<b>${d.getDate()} ${mn[d.getMonth()]}</b>`;
+      if(W>=10||d.getDate()===1)head+=`<div class="day${we&&W>=18?' we':''}${td?' today':''}" style="left:${i*W}px;width:${W>=30?W:W*7}px">${lab}</div>`;}
+    if(we&&W>=18)cols+=`<div class="col we" style="left:${i*W}px;width:${W}px"></div>`;}
+  const nowX=((T0-min)/DAY+.5)*W;
+  let rows='';
+  for(const t of list){
+    const x=(parse(t.s)-min)/DAY*W,w=Math.max(W,((parse(t.e)-parse(t.s))/DAY+1)*W-2);
+    rows+=`<div class="name" tabindex="0" data-id="${esc(t.id)}" title="${esc(t.n)}"><span class="dot" style="background:var(--s-${t.st})"></span><span class="t">${esc(t.n)}</span>${t.g?`<span class="g">${esc(t.g)}</span>`:""}</div>
+    <div class="lane">${cols}<div class="now" style="left:${nowX}px"></div><button class="task st-${t.st}" data-id="${esc(t.id)}" style="left:${x+1}px;width:${w}px" title="${esc(t.n)} · ${SL[t.st]} · ${t.p||0}%"><i class="p" style="width:${t.st==='done'?0:(t.p||0)}%"></i>${t.st==='done'?'<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 7.5l2.5 2.5L11 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}<span>${esc(t.n)}${w>140?' · '+(t.p||0)+'%':''}</span></button></div>`;}
+  g.innerHTML=`<div class="corner">Tarea</div><div class="hd" style="position:sticky">${head}</div>`+(rows||`<div class="empty" style="grid-column:1/3"><b>Nada pendiente.</b>No hay tareas con este filtro. Pulsa “Nueva tarea”.</div>`);
+  g.dataset.min=min;
+}
+function scrollToday(){const w=$('wrap'),min=+$('grid').dataset.min;w.scrollLeft=Math.max(0,(T0-min)/DAY*zoom-w.clientWidth/3)}
+
+function openEdit(id){
+  editId=id;const t=tasks.find(x=>x.id===id)||{n:'',s:iso(T0),e:add(T0,3),st:'pend',p:0,g:$('fg').value,no:''};
+  $('dt').textContent=id?'Editar tarea':'Nueva tarea';$('f-del').hidden=!id;
+  $('f-n').value=t.n;$('f-s').value=t.s;$('f-e').value=t.e;pick(t.st);$('f-p').value=t.p||0;$('f-g').value=t.g||'';$('f-no').value=t.no||'';
+  $('dlg').showModal();$('f-n').focus();
+}
+$('frm').addEventListener('submit',ev=>{
+  ev.preventDefault();
+  let s=$('f-s').value,e=$('f-e').value;if(e<s)[s,e]=[e,s];
+  let st=$('f-st').value,p=Math.min(100,Math.max(0,+$('f-p').value||0));
+  if(st==='done')p=100;else if(p===100)st='done';
+  const d={n:$('f-n').value.trim()||'Sin nombre',s,e,st,p,g:$('f-g').value.trim(),no:$('f-no').value.trim()};
+  const next=editId?tasks.map(x=>x.id===editId?{...x,...d}:x):[...tasks,{id:newId(),...d}];
+  $('dlg').close();commit(next);toast('Guardado');
+});
+$('f-x').onclick=()=>$('dlg').close();
+$('f-del').onclick=()=>{$('dlg').close();commit(tasks.filter(x=>x.id!==editId));toast('Eliminada · puedes deshacer')};
+$('add').onclick=()=>openEdit(null);
+$('grid').addEventListener('click',e=>{const el=e.target.closest('[data-id]');if(el)openEdit(el.dataset.id)});
+const order=ST.map(x=>x[0]);
+$('list').addEventListener('click',e=>{const c=e.target.closest('[data-cycle]');
+  if(c){e.stopPropagation();const id=c.dataset.cycle;commit(tasks.map(t=>{if(t.id!==id)return t;const st=order[(order.indexOf(t.st)+1)%order.length];return {...t,st,p:st==='done'?100:(t.p===100?0:t.p)}}));return}
+  const el=e.target.closest('.card');if(el)openEdit(el.dataset.id)});
+$('list').addEventListener('keydown',e=>{const el=e.target.closest('.card');if(el&&e.target===el&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openEdit(el.dataset.id)}});
+$('stats').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(b){$('fs').value=b.dataset.f;render()}});
+document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{view=b.dataset.v;document.querySelectorAll('[data-v]').forEach(x=>x.setAttribute('aria-pressed',x===b));render();if(view==='gantt')scrollToday()});
+document.querySelectorAll('[data-v]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===view));
+$('fab').onclick=()=>openEdit(null);
+$('out').onclick=async()=>{if(sb){await sb.auth.signOut();location.reload()}};
+$('grid').addEventListener('keydown',e=>{const el=e.target.closest('.name');if(el&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openEdit(el.dataset.id)}});
+document.querySelectorAll('.zoom button').forEach(b=>b.onclick=()=>{zoom=+b.dataset.z;document.querySelectorAll('.zoom button').forEach(x=>x.setAttribute('aria-pressed',x===b));render();scrollToday()});
+$('today').onclick=scrollToday;
+$('fs').onchange=render;$('fg').onchange=render;
+$('undo').onclick=()=>{if(!hist.length)return;const prev=JSON.parse(hist.pop());$('undo').disabled=!hist.length;commit(prev,{undo:false});toast('Deshecho')};
+$('io').onclick=()=>{$('io-t').value=JSON.stringify(tasks,null,1);$('dio').showModal()};
+$('io-x').onclick=()=>$('dio').close();
+$('io-c').onclick=async()=>{try{await navigator.clipboard.writeText($('io-t').value);toast('Copiado')}catch(e){$('io-t').select();toast('Selecciona y copia manualmente')}};
+$('io-i').onclick=()=>{try{const d=JSON.parse($('io-t').value);if(!Array.isArray(d))throw 0;
+  const ok=d.filter(t=>t&&typeof t.n==='string'&&/^\d{4}-\d\d-\d\d$/.test(t.s)&&/^\d{4}-\d\d-\d\d$/.test(t.e)).map(t=>({id:newId()+Math.random().toString(36).slice(2,5),...clean(t)}));
+  commit(ok);$('dio').close();toast(`Importadas ${ok.length} tareas`)}catch(e){toast('Texto no válido')}};
+let rt;const ro=new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(render,120)});ro.observe(document.body);
+render();scrollToday();
+}
+</script>
+</body>
+</html>
