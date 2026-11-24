@@ -78,7 +78,7 @@ select{font-family:"Cormorant SC",serif;letter-spacing:.12em;font-weight:600}
 .st-pend{background:var(--s-pend)}.st-act{background:var(--s-act)}.st-done{background:var(--s-done)}.st-blk{background:var(--s-blk)}.st-pau{background:var(--s-pau)}
 .task.st-act .p{background:#ffd2b3}
 .task.st-done span{color:var(--mut);text-decoration:line-through}
-.empty{padding:64px 0;color:var(--mut);font-size:15px}.empty b{display:block;color:var(--ink);font:500 40px/1.1 "Cormorant Garamond",serif;margin-bottom:6px}
+.empty{padding:64px 0;color:var(--mut);font-size:15px}.empty b{display:block;color:var(--ink);font:600 40px/1.1 "Outfit",sans-serif;letter-spacing:-.03em;margin-bottom:6px}
 .list{display:none}
 .list h3{margin:28px 0 0;padding:0 0 8px;font:600 13px "Cormorant SC",serif;letter-spacing:.24em;color:var(--hi);border-bottom:1px solid var(--ink)}
 .card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:16px 0;border-bottom:1px solid var(--line);cursor:pointer}
@@ -223,12 +223,13 @@ form h2{font-size:48px!important;font-weight:600;letter-spacing:-.04em!important
 </form></dialog>
 <div class="toast" id="toast" role="status"></div>
 
-<dialog id="login" open hidden style="position:fixed;inset:0;margin:auto">
+<dialog id="login" open hidden style="position:fixed;inset:0;margin:auto;z-index:30;box-shadow:0 0 0 100vmax rgba(0,0,0,.75)">
 <form id="lform"><h2>entrar</h2>
-<p style="margin:0;color:var(--mut);text-transform:none">Escribe tu email y te llega un enlace para entrar. Solo hace falta una vez por dispositivo.</p>
+<p style="margin:0;color:var(--mut);text-transform:none">Solo hace falta una vez por dispositivo. La primera vez pulsa «crear cuenta» y elige tu contraseña.</p>
 <label>email<input type="email" id="lemail" required autocomplete="email"></label>
+<label>contraseña<input type="password" id="lpass" required minlength="6" autocomplete="current-password"></label>
 <p id="lmsg" style="margin:0;color:var(--hi);text-transform:none"></p>
-<div class="acts"><button class="pri">enviar enlace</button></div></form></dialog>
+<div class="acts"><button type="button" id="lnew">crear cuenta</button><button class="pri" id="lbtn">entrar</button></div></form></dialog>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
@@ -318,9 +319,14 @@ async function start(){if(started)return;started=true;$('login').hidden=true;syn
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
   window.addEventListener('online',load);
 }
-$('lform').addEventListener('submit',async e=>{e.preventDefault();const email=$('lemail').value.trim();
-  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
-  $('lmsg').textContent=error?'No se pudo enviar: '+error.message:'Te he enviado un enlace a '+email+'. Ábrelo desde este dispositivo.'});
+const cred=()=>({email:$('lemail').value.trim(),password:$('lpass').value});
+$('lform').addEventListener('submit',async e=>{e.preventDefault();$('lmsg').textContent='Entrando…';
+  const {error}=await sb.auth.signInWithPassword(cred());
+  if(error){$('lmsg').textContent=/invalid/i.test(error.message)?'Email o contraseña incorrectos.':error.message;return}start()});
+$('lnew').onclick=async()=>{if(!$('lform').reportValidity())return;$('lmsg').textContent='Creando cuenta…';
+  const {data,error}=await sb.auth.signUp(cred());
+  if(error){$('lmsg').textContent=error.message;return}
+  if(data.session)start();else $('lmsg').textContent='Cuenta creada. Ahora pulsa «entrar».'};
 setTimeout(()=>sb&&sb.auth.onAuthStateChange((ev,ses)=>{if(ses)start()}),0);
 const toast=m=>{const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),1800)};
 
